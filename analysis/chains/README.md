@@ -1,0 +1,1 @@
+This directory contains MCMC chains and log-posterior values.
