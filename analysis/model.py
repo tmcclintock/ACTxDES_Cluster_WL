@@ -1,7 +1,7 @@
 import numpy as np
 import cluster_toolkit as ct
 
-def ACTxDES_cluster_lnpost(params, args):
+def ACTxDES_cluster_lnpost(params, args, return_model=False):
     """Log-posterior of the cluster lensing signal.
     
     Note: this model assumes no miscentering is present.
@@ -91,5 +91,9 @@ def ACTxDES_cluster_lnpost(params, args):
     #Note: here, Rs is Mpc/h physical and Rb is the same
     boost_model = ct.boostfactors.boost_nfw_at_R(args['Rb'], B0, Rs)
     Xb = Bp1 - boost_model
-    lnlike += -0.5*np.dot(Xb, np.linalg.solve(Bcov, Xb))  
+    lnlike += -0.5*np.dot(Xb, np.linalg.solve(Bcov, Xb))
+
+    if return_model:
+        return full_DeltaSigma*(1+z)**2, ave_DeltaSigma*(1+z)**2, boost
+    
     return lnlike + lnprior

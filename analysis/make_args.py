@@ -58,6 +58,9 @@ def get_args(filename):
                 Redges_com_cut.append(Re)
         Redges_com_cut = np.asarray(Redges_com_cut)
 
+        #Compute the signal to noise
+        SNR = np.dot(DeltaSigma_cut, np.linalg.solve(Cov_cut, DeltaSigma_cut))
+
         #Boost factor stuff -- note, these don't exist yet
         Rb = Rmid[cut]/(1+z) #Convert to physical distances; Mpc/h physical
         B_plus_1 = np.ones_like(DeltaSigma_cut)
@@ -78,7 +81,7 @@ def get_args(filename):
     #Load in the dictionary for precomputed LSS quantities for
     #this cosmology
     #analysis_dict = np.load(LSS_dict_path)
-    analysis_dict = pickle.load(open(LSS_dict_path, "rb"))
+    analysis_dict = pickle.load(open(LSS_dict_path, "rb"), encoding="latin1")
     LSS_dict = analysis_dict["args_at_{z:.3f}".format(z=z)]
     r = LSS_dict["r"] #Mpc/h comoving
     xi_mm = LSS_dict["xi_nl"] #Fourier transform of P_nl(k, z)
@@ -97,7 +100,9 @@ def get_args(filename):
             "biases":biases, "Rp":Rp, "Redges_com_cut":Redges_com_cut,
             "Boost_plus_1":B_plus_1, "B_cov":B_cov, "Rb":Rb,
             "b_spline":bias_spline, "c_spline":conc_spline,
-            "Sigma_crit_inv":Sigma_crit_inv, "Am_mean":Am_mean, "Am_var":Am_var}
+            "Rmid_cut":Rmid[cut], "Sigma_crit_inv":Sigma_crit_inv,
+            "Am_mean":Am_mean, "Am_var":Am_var,
+            "Rp_phys":Rp/(1+z), "SNR":SNR}
     return args
 
 def get_multiplicative_bias_prior(zi):
