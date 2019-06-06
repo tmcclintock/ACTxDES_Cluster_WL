@@ -39,7 +39,7 @@ def get_args(filename):
 
         #Radial bin edges in Mpc/h physical distances
         Redges = np.logspace(np.log10(0.02), np.log10(80.),19)
-        Redges_com = (1+mean_z)*Redges #comoving Mpc/h
+        Redges_com = (1+z)*Redges #comoving Mpc/h
         Rmid = (Redges[1:] + Redges[:-1])/2
 
         #Check to make sure the sizes of things are correct
@@ -47,14 +47,15 @@ def get_args(filename):
         assert len(Redges)-1 == len(Cov)
         assert len(Redges)-1 == len(Cov[0])
 
-        #Our cut at 200 kpc/h physical
-        cut = Rmid > 0.2 #Should be 14 bins, with 5 cut
+        #Our cut at 300 kpc/h physical
+        CUTOFF = 0.3 #Mpc/h physical
+        cut = Rmid > CUTOFF #Should be 14 bins, with 5 cut
         DeltaSigma_cut = DeltaSigma[cut]
         Cov_cut = Cov[cut]
         Cov_cut = Cov_cut[:, cut]
         Redges_com_cut = []
         for Re in Redges_com:
-            if Re > 0.2:
+            if Re > CUTOFF*(1+z):
                 Redges_com_cut.append(Re)
         Redges_com_cut = np.asarray(Redges_com_cut)
 
