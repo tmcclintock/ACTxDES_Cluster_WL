@@ -63,6 +63,9 @@ def get_args(filename):
         B_plus_1 = np.ones_like(DeltaSigma_cut)
         B_cov = np.diag(B_plus_1)
 
+        #Multiplicative bias
+        Am_mean, Am_var = get_multiplicative_bias_prior(z)
+
         #Sigma_crit_inv for the reduced shear effect
         #pc^2/hMsun comoving
         Sigma_crit_inv = 0 #for now
@@ -94,8 +97,26 @@ def get_args(filename):
             "biases":biases, "Rp":Rp, "Redges_com_cut":Redges_com_cut,
             "Boost_plus_1":B_plus_1, "B_cov":B_cov, "Rb":Rb,
             "b_spline":bias_spline, "c_spline":conc_spline,
-            "Sigma_crit_inv":Sigma_crit_inv}
+            "Sigma_crit_inv":Sigma_crit_inv, "Am_mean":Am_mean, "Am_var":Am_var}
     return args
+
+def get_multiplicative_bias_prior(zi):
+    #See McClintock et al. (2019) for details
+    z, R, Re = np.loadtxt("../data/photoz_calibration/sci_correction.dat",
+                          unpack=True)
+    delta_plus_1 = 1./R
+    dp1_unc = Re / R**2
+    dp1_spline = IUS(z, delta_plus_1)
+    dp1e_spline = IUS(z, dp1_unc)
+    dp1_z = dp1_spline(zi)
+    dp1_var = dp1e_spline(zi)**2
+    #Shear
+    m = 0.012 #Y1 value! TODO
+    m_var = 0.013**2 #Y1 value! TODO
+    Am_mean = dp1_z + m
+    Am_var = dp1_var + m_var
+    return Am_mean, Am_var
+    
 
 if __name__ == "__main__":
     fname = "dsigma_advact_SNRgt5_z0.1-0.9.npz"

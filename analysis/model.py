@@ -33,11 +33,14 @@ def ACTxDES_cluster_lnpost(params, args):
     #Non-trivial priors. Miscentering has been commented out
     LPfmis = 0 #(0.32 - fmis)**2/0.05**2
     LPtau  = 0 #(0.153 - tau)**2/0.03**2
-    LPA    = (1.02 - Am)**2/0.0006 #Temporary values
-    
-    lnlike = -0.5*(LPfmis + LPtau + LPA) #Sum of the priors
+    Am_mean = args["Am_mean"]
+    Am_var = args["Am_var"]
+    LPA    = (Am_mean - Am)**2/Am_var
 
-    #Step 1: pull out everything that has been assmebled in the arguments dictionary.
+    lnprior = -0.5*(LPfmis + LPtau + LPA) #Sum of the priors
+
+    #Step 1: pull out everything that has been assmebled in the
+    #arguments dictionary.
     z = args["z"]
     h = args["h"]
     Omega_m = args["Omega_m"]
@@ -83,10 +86,10 @@ def ACTxDES_cluster_lnpost(params, args):
     
     #Convert the model to physical
     X = (DS_data - ave_DeltaSigma*(1+z)**2)
-    lnlike += -0.5*np.dot(X, np.linalg.solve(Cov, X))
+    lnlike = -0.5*np.dot(X, np.linalg.solve(Cov, X))
     
     #Note: here, Rs is Mpc/h physical and Rb is the same
     boost_model = ct.boostfactors.boost_nfw_at_R(args['Rb'], B0, Rs)
     Xb = Bp1 - boost_model
     lnlike += -0.5*np.dot(Xb, np.linalg.solve(Bcov, Xb))  
-    return lnlike
+    return lnlike + lnprior
