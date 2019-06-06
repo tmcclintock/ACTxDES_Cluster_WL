@@ -1,0 +1,1 @@
+This directory contains pre-computed power spectra and correlation functions for the large scale structure. This saves time during the analysis.
