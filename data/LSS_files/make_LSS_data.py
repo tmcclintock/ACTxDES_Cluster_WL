@@ -85,3 +85,8 @@ if __name__ == "__main__":
     des_zs = [0.5]
     des_outfile = "LSS_DES_dict"
     make_LSS_data(des_zs, des_cosmo_dict, des_outfile)
+
+    #ACT + DES
+    actdes_zs = [0.333, 0.50, 0.676] #mean redshifts
+    actdes_outfile = "LSS_ACTxDES_dict"
+    make_LSS_data(actdes_zs, des_cosmo_dict, actdes_outfile)
