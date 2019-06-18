@@ -26,7 +26,7 @@ def make_LSS_data(z, cosmo_dict, outfile=None):
     cosmo.set(cosmo_dict)
     cosmo.compute()
     sigma8 = cosmo.sigma8()
-    print "sigma8 is:", sigma8
+    print("sigma8 is:", sigma8)
     
     k = np.logspace(-5, 3, base=10, num=4000) #1/Mpc; comoving
     kh = k / h #h/Mpc; comoving
@@ -38,13 +38,13 @@ def make_LSS_data(z, cosmo_dict, outfile=None):
         P_nl = np.array([cosmo.pk(ki, zi) for ki in k])*h**3
         P_lin = np.array([cosmo.pk_lin(ki, zi) for ki in k])*h**3
 
-        xi_nl = ct.xi.xi_mm_at_r(r, k, P_nl)
-        xi_lin = ct.xi.xi_mm_at_r(r, k, P_lin)
+        xi_nl = ct.xi.xi_mm_at_r(r, kh, P_nl)
+        xi_lin = ct.xi.xi_mm_at_r(r, kh, P_lin)
 
-        c = np.array([conc.concentration_at_M(Mi, k, P_lin, n_s,
+        c = np.array([conc.concentration_at_M(Mi, kh, P_lin, n_s,
                                               Omega_b, Omega_m, h,
                                               Mass_type="mean") for Mi in M])
-        bias = ct.bias.bias_at_M(M, k, P_lin, Omega_m)
+        bias = ct.bias.bias_at_M(M, kh, P_lin, Omega_m)
 
         args_at_z = {"k":kh, "P_lin":P_lin, "P_nl":P_nl, "r":r, "xi_lin":xi_lin,
                      "xi_nl":xi_nl, "M":M, "concentration":c, "bias":bias,
