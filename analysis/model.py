@@ -93,7 +93,7 @@ def ACTxDES_cluster_lnpost(params, args, return_model=False):
     Xb = Bp1 - boost_model
     lnlike += -0.5*np.dot(Xb, np.linalg.solve(Bcov, Xb))
 
-    if return_model:
+    if return_model: #returned in h Msun/pc^2 physical distances
         return full_DeltaSigma*(1+z)**2, ave_DeltaSigma*(1+z)**2, boost
     
     return lnlike + lnprior

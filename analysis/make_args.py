@@ -1,6 +1,9 @@
 """
 Given a filename, read in the data and assemble a dictionary containing
 information for the analysis.
+
+TODO: incorporate the Hartlapp factor on the JK covariance matrices
+TODO: make Sigma_crit_inv correctly
 """
 
 import numpy as np
@@ -75,7 +78,120 @@ def get_args(filename):
         Sigma_crit_inv = 0 #for now
         
         #Path to the LSS quantities
-        LSS_dict_path = "../data/LSS_files/LSS_DES_dict.p"
+        LSS_dict_path = "../data/LSS_files/LSS_ACTxDES_dict.p"
+    elif filename == "dsigma_advact_SNRgt5_z0.1-0.5.npz":
+        #All clusters with SNR>5 between z\in[0.1, 0.5]
+        data = np.load("../data/{0}".format(filename))
+        DeltaSigma = data['dsigma']
+        Cov = data['cov']
+
+        #Constants
+        h = 0.7
+        Omega_m = 0.3
+        mean_z  = 0.333
+        median_z = 0.346 
+        mean_xi = 8.19
+        median_xi = 6.64
+
+        #For this analysis, use the mean redshift
+        z = mean_z
+
+        #Radial bin edges in Mpc/h physical distances
+        Redges = np.logspace(np.log10(0.02), np.log10(80.),19)
+        Redges_com = (1+z)*Redges #comoving Mpc/h
+        Rmid = (Redges[1:] + Redges[:-1])/2
+
+        #Check to make sure the sizes of things are correct
+        assert len(Redges)-1 == len(DeltaSigma)
+        assert len(Redges)-1 == len(Cov)
+        assert len(Redges)-1 == len(Cov[0])
+
+        #Our cut at 300 kpc/h physical
+        CUTOFF = 0.3 #Mpc/h physical
+        cut = Rmid > CUTOFF #Should be 14 bins, with 5 cut
+        DeltaSigma_cut = DeltaSigma[cut]
+        Cov_cut = Cov[cut]
+        Cov_cut = Cov_cut[:, cut]
+        Redges_com_cut = []
+        for Re in Redges_com:
+            if Re > CUTOFF*(1+z):
+                Redges_com_cut.append(Re)
+        Redges_com_cut = np.asarray(Redges_com_cut)
+
+        #Compute the signal to noise
+        SNR = np.dot(DeltaSigma_cut, np.linalg.solve(Cov_cut, DeltaSigma_cut))
+
+        #Boost factor stuff -- note, these don't exist yet
+        Rb = Rmid[cut]/(1+z) #Convert to physical distances; Mpc/h physical
+        B_plus_1 = np.ones_like(DeltaSigma_cut)
+        B_cov = np.diag(B_plus_1)
+
+        #Multiplicative bias
+        Am_mean, Am_var = get_multiplicative_bias_prior(z)
+
+        #Sigma_crit_inv for the reduced shear effect
+        #pc^2/hMsun comoving
+        Sigma_crit_inv = 0 #for now
+        
+        #Path to the LSS quantities
+        LSS_dict_path = "../data/LSS_files/LSS_ACTxDES_dict.p"
+    elif filename == "dsigma_advact_SNRgt5_z0.5-0.9.npz":
+        #All clusters with SNR>5 between z\in[0.5, 0.9]
+        data = np.load("../data/{0}".format(filename))
+        DeltaSigma = data['dsigma']
+        Cov = data['cov']
+
+        #Constants
+        h = 0.7
+        Omega_m = 0.3
+        mean_z  = 0.676
+        median_z = 0.671 
+        mean_xi = 7.31
+        median_xi = 6.26
+
+        #For this analysis, use the mean redshift
+        z = mean_z
+
+        #Radial bin edges in Mpc/h physical distances
+        Redges = np.logspace(np.log10(0.02), np.log10(80.),19)
+        Redges_com = (1+z)*Redges #comoving Mpc/h
+        Rmid = (Redges[1:] + Redges[:-1])/2
+
+        #Check to make sure the sizes of things are correct
+        assert len(Redges)-1 == len(DeltaSigma)
+        assert len(Redges)-1 == len(Cov)
+        assert len(Redges)-1 == len(Cov[0])
+
+        #Our cut at 300 kpc/h physical
+        CUTOFF = 0.3 #Mpc/h physical
+        cut = Rmid > CUTOFF #Should be 14 bins, with 5 cut
+        DeltaSigma_cut = DeltaSigma[cut]
+        Cov_cut = Cov[cut]
+        Cov_cut = Cov_cut[:, cut]
+        Redges_com_cut = []
+        for Re in Redges_com:
+            if Re > CUTOFF*(1+z):
+                Redges_com_cut.append(Re)
+        Redges_com_cut = np.asarray(Redges_com_cut)
+
+        #Compute the signal to noise
+        SNR = np.dot(DeltaSigma_cut, np.linalg.solve(Cov_cut, DeltaSigma_cut))
+
+        #Boost factor stuff -- note, these don't exist yet
+        Rb = Rmid[cut]/(1+z) #Convert to physical distances; Mpc/h physical
+        B_plus_1 = np.ones_like(DeltaSigma_cut)
+        B_cov = np.diag(B_plus_1)
+
+        #Multiplicative bias
+        Am_mean, Am_var = get_multiplicative_bias_prior(z)
+
+        #Sigma_crit_inv for the reduced shear effect
+        #pc^2/hMsun comoving
+        Sigma_crit_inv = 0 #for now
+        
+        #Path to the LSS quantities
+        LSS_dict_path = "../data/LSS_files/LSS_ACTxDES_dict.p"
+
     else:
         raise Exception("Analysis not configured.")
     
