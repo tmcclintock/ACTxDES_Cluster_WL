@@ -33,6 +33,7 @@ best = result.x
 DeltaSigma, ave_DeltaSigma, _ = model.ACTxDES_cluster_lnpost(best, args, True)
 
 import matplotlib.pyplot as plt
+plt.rc("text", usetex=True)
 plt.rc("font", size=24, family="serif")
 plt.rc("errorbar", capsize=3)
 
