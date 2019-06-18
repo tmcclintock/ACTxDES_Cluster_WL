@@ -35,8 +35,8 @@ def make_LSS_data(z, cosmo_dict, outfile=None):
     
     z = np.asarray(z)
     for zi in z:
-        P_nl = np.array([cosmo.pk(ki, zi) for ki in k]) 
-        P_lin = np.array([cosmo.pk_lin(ki, zi) for ki in k])
+        P_nl = np.array([cosmo.pk(ki, zi) for ki in k])*h**3
+        P_lin = np.array([cosmo.pk_lin(ki, zi) for ki in k])*h**3
 
         xi_nl = ct.xi.xi_mm_at_r(r, k, P_nl)
         xi_lin = ct.xi.xi_mm_at_r(r, k, P_lin)
